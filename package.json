@@ -1,12 +1,21 @@
 {
   "name": "express-request-timeout-test",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sundeepnarang/express-request-timeout-test.git"
+  },
+  "keywords": ["timeout", "express-timeout"],
   "author": "Sundeep Narang <sundeepnrng@gmail.com> (https//sundeepnarang.com)",
-  "license": "ISC"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sundeepnarang/express-request-timeout-test/issues"
+  },
+  "homepage": "https://github.com/sundeepnarang/express-request-timeout-test#readme"
 }
