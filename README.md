@@ -10,6 +10,8 @@ app.use(timeoutTest({
     timeout: 140000,
     interval: 10000,
     res_status: 200,
+    res_fail_status: 429,
+    max_tests: 1,
     verbose: true
 }))
 ```
@@ -41,5 +43,7 @@ GET /timeouttest 200 140009.159 ms - -
 |`timeout_route`|`'/timeouttest'`|Route to test timeout
 |`timeout`|`300000`(5 minutes)|Timeout Interval
 |`interval`|`10000`(10 seconds)|Logging Interval
-|`res_status`|`200`|Response status
+|`res_status`|`200`|Response success status
+|`res_fail_status`|`429`|Response fail status
+|`max_tests`|`1`|Maximum number of tests allowed at once
 |`verbose`|`true`|Log output

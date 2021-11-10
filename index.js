@@ -3,8 +3,10 @@ const setTimeoutPromise = util.promisify(setTimeout);
 
 const DEFAULT_ROUTE = "/timeouttest";
 const DEFAULT_RES_STATUS = 200;
+const DEFAULT_RES_FAIL_STATUS = 429;
 const DEFAULT_TIMEOUT = 5*60*1000; // 5 mins
 const DEFAULT_LOG_INTERVAL = 10*1000; // 10 Seconds
+const MAX_TESTS = 1
 
 /**
  * Converts milliseconds into greater time units as possible
@@ -55,17 +57,30 @@ function log(verbose){
 }
 
 module.exports = function ({
-   timeout_route=DEFAULT_ROUTE,
-   timeout=DEFAULT_TIMEOUT,
-   interval=DEFAULT_LOG_INTERVAL,
-   res_status=DEFAULT_RES_STATUS,
-   verbose=true
+    timeout_route=DEFAULT_ROUTE,
+    timeout=DEFAULT_TIMEOUT,
+    interval=DEFAULT_LOG_INTERVAL,
+    res_status=DEFAULT_RES_STATUS,
+    res_fail_status=DEFAULT_RES_FAIL_STATUS,
+    max_tests=MAX_TESTS,
+    verbose=true
 }={}) {
     return async function (req, res, next) {
         // Implement the middleware function based on the options object
+
         const logger = log(verbose)
         const url =  req.originalUrl
+
         if(url.toLowerCase().startsWith(timeout_route)){
+            logger(`[${url}] ongoing timeout tests start ${req.app.locals.ongoing_timeout_tests}`);
+            let {ongoing_timeout_tests=0} = req.app.locals
+            req.app.locals.ongoing_timeout_tests = ongoing_timeout_tests
+            if(req.app.locals.ongoing_timeout_tests>=max_tests){
+                logger(`[${url}] Exceeded max timeout tests`)
+                return res.sendStatus(res_fail_status);
+            }
+            req.app.locals.ongoing_timeout_tests += 1;
+            logger(`[${url}] ongoing timeout tests mid ${req.app.locals.ongoing_timeout_tests}`);
             logger(`[${url}] Waiting for ${timeUnitsStr(timeUnits(timeout))}`);
             let startCount = interval
             const intervalId = setInterval(()=>{
@@ -74,9 +89,11 @@ module.exports = function ({
             },interval)
             await setTimeoutPromise(timeout, true);
             clearInterval(intervalId);
+            req.app.locals.ongoing_timeout_tests -= 1;
             res.sendStatus(res_status)
+            logger(`[${url}] ongoing timeout tests end ${req.app.locals.ongoing_timeout_tests}`);
         }else{
-            next()
+            next();
         }
     }
 }
