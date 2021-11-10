@@ -69,14 +69,15 @@ module.exports = function ({
     return async function (req, res, next) {
         // Implement the middleware function based on the options object
 
-        if(check_auth&&!req.isAuthenticated()){
-            return res.sendStatus(403);
-        }
 
         const logger = log(verbose)
         const url =  req.originalUrl
 
         if(url.toLowerCase().startsWith(timeout_route)){
+
+            if(check_auth&&!req.isAuthenticated()){
+                return res.sendStatus(403);
+            }
             let {ongoing_timeout_tests=0} = req.app.locals
             req.app.locals.ongoing_timeout_tests = ongoing_timeout_tests
             if(req.app.locals.ongoing_timeout_tests>=max_tests){
