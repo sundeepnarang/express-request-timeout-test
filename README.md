@@ -12,6 +12,7 @@ app.use(timeoutTest({
     res_status: 200,
     res_fail_status: 429,
     max_tests: 1,
+    check_auth: false,
     verbose: true
 }))
 ```
@@ -46,4 +47,5 @@ GET /timeouttest 200 140009.159 ms - -
 |`res_status`|`200`|Response success status
 |`res_fail_status`|`429`|Response fail status
 |`max_tests`|`1`|Maximum number of tests allowed at once
+|`check_auth`|`false`|Check request authenticated
 |`verbose`|`true`|Log output

@@ -63,16 +63,20 @@ module.exports = function ({
     res_status=DEFAULT_RES_STATUS,
     res_fail_status=DEFAULT_RES_FAIL_STATUS,
     max_tests=MAX_TESTS,
+    check_auth=false,
     verbose=true
 }={}) {
     return async function (req, res, next) {
         // Implement the middleware function based on the options object
 
+        if(check_auth&&!req.isAuthenticated()){
+            return res.sendStatus(403);
+        }
+
         const logger = log(verbose)
         const url =  req.originalUrl
 
         if(url.toLowerCase().startsWith(timeout_route)){
-            logger(`[${url}] ongoing timeout tests start ${req.app.locals.ongoing_timeout_tests}`);
             let {ongoing_timeout_tests=0} = req.app.locals
             req.app.locals.ongoing_timeout_tests = ongoing_timeout_tests
             if(req.app.locals.ongoing_timeout_tests>=max_tests){
@@ -80,7 +84,6 @@ module.exports = function ({
                 return res.sendStatus(res_fail_status);
             }
             req.app.locals.ongoing_timeout_tests += 1;
-            logger(`[${url}] ongoing timeout tests mid ${req.app.locals.ongoing_timeout_tests}`);
             logger(`[${url}] Waiting for ${timeUnitsStr(timeUnits(timeout))}`);
             let startCount = interval
             const intervalId = setInterval(()=>{
@@ -91,7 +94,6 @@ module.exports = function ({
             clearInterval(intervalId);
             req.app.locals.ongoing_timeout_tests -= 1;
             res.sendStatus(res_status)
-            logger(`[${url}] ongoing timeout tests end ${req.app.locals.ongoing_timeout_tests}`);
         }else{
             next();
         }
